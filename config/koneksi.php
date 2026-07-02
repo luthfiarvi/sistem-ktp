@@ -1,10 +1,9 @@
 <?php
 // Ubah kredensial sesuai XAMPP kamu
-$DB_HOST = "localhost";
-$DB_USER = "root";
-$DB_PASS = "";
-$DB_NAME = "db_ktp";
-$DB_FALLBACK_NAME = "db_ktp_app";
+$host = "sql206.infinityfree.com"; // Isi pake MySQL Hostname dari InfinityFree
+$user = "if0_42322302";              // Isi pake MySQL Username
+$pass = "IGUWuVHgeuqQxI";            // Isi pake Password akun hosting
+$db   = "if0_42322302_db_ktp";       // Isi pake Nama Database lengkap yang kebuat
 
 function db_name_sql($name){
     if(!preg_match('/^[A-Za-z0-9_]+$/', $name)){
