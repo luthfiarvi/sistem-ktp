@@ -1,0 +1,39 @@
+﻿<?php require_once __DIR__.'/config/koneksi.php'; ?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Sistem Pembuatan KTP</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <strong>Sistem Pembuatan KTP (PHP + MySQL)</strong>
+    <a href="index.php">Beranda</a>
+    <a href="formulir.php">Input Formulir</a>
+    <a href="lihat.php">Daftar KTP</a>
+    <a href="kelurahan.php">Profil Kelurahan Munjul</a>
+  </div>
+</nav>
+<div class="container">
+  <div class="card">
+    <h1>Beranda</h1>
+    <p>Aplikasi sederhana pembuatan KTP dengan unggah KK dan Akte, lalu menampilkan KTP digital.</p>
+    <ul>
+      <li>âœ… Input data diri + unggah berkas (KK & Akte & Foto)</li>
+      <li>âœ… Data tersimpan di tabel <em>formulir, kk, akte</em></li>
+      <li>âœ… Tampilan KTP memakai <code>view_ktp_lengkap</code></li>
+      <li>âœ… Halaman profil Kelurahan Munjul (lokasi & sejarah)</li>
+      <li>âœ… Pencarian NIK/Nama & halaman cetak</li>
+    </ul>
+    <p>
+      <a class="btn" href="formulir.php">âž• Buat Formulir KTP</a>
+      <a class="btn secondary" href="lihat.php">ðŸ”Ž Lihat / Cari KTP</a>
+      <a class="btn secondary" href="kelurahan.php">ðŸ™ï¸ Profil Kelurahan</a>
+    </p>
+    <p class="note">Pastikan folder <code>uploads/</code> dan subfoldernya dapat ditulis.</p>
+  </div>
+</div>
+</body>
+</html>
