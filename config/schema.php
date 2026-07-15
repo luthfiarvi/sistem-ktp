@@ -41,9 +41,9 @@ function ensure_core_schema(mysqli $koneksi){
     $koneksi->query("INSERT INTO kelurahan
         (id_kelurahan, nama_kelurahan, kecamatan, kota, provinsi, kode_pos, luas_wilayah, jumlah_rw, jumlah_rt, kepala_kelurahan, sejarah, lokasi, foto_url)
         SELECT 1, 'Munjul', 'Cipayung', 'Jakarta Timur', 'DKI Jakarta', '13850', 4.85, 9, 78,
-               'Nama Kepala Kelurahan (isi sesuai data resmi)',
+               'Tari Djutari, S.E., M.Si.',
                'Kelurahan Munjul dahulu bagian dari Desa Setu yang kemudian dimekarkan untuk meningkatkan pelayanan masyarakat. Wilayah ini dikenal dengan karakter semi-perkotaan, memiliki area hijau luas dan komunitas aktif dalam kegiatan sosial serta keagamaan.',
-               'https://cipayung.jakarta.go.id/', NULL
+               'https://timur.jakarta.go.id/kelurahan/munjul', 'https://timur.jakarta.go.id/storage/kelurahan/9HzDjPtxOOxdta0xEPA790hkwNS1SFCW41wXpbn8.jpeg'
         WHERE NOT EXISTS (SELECT 1 FROM kelurahan LIMIT 1)");
 
     $koneksi->query("CREATE TABLE IF NOT EXISTS kk (
