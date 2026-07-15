@@ -38,6 +38,23 @@ if(!is_file($fotopath)){
     $fotopath = 'assets/img/placeholder.svg';
   }
 } // fallback foto
+
+function getStatusBadgeClass($status) {
+    switch ($status) {
+        case 'Diajukan':
+            return 'badge-info';
+        case 'Diverifikasi':
+            return 'badge-warning';
+        case 'Disetujui':
+            return 'badge-success';
+        case 'Dicetak':
+            return 'badge-purple';
+        case 'Selesai':
+            return 'badge-success';
+        default:
+            return 'badge-info';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -46,6 +63,7 @@ if(!is_file($fotopath)){
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KTP - <?=htmlspecialchars($data['nama'])?></title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <nav class="site-header">
@@ -65,25 +83,35 @@ if(!is_file($fotopath)){
 
 <div class="container">
   <div class="card">
+    <!-- Print Bar & Actions -->
     <div class="printbar">
-      <a class="btn secondary back" href="lihat.php">Daftar</a>
-      <a class="btn secondary" href="edit.php?id=<?=$id?>">Edit</a>
-      <form action="hapus.php" method="post" style="display:inline" onsubmit="return confirm('Hapus data ini? Tindakan tidak bisa dibatalkan.');">
-        <input type="hidden" name="id" value="<?=$id?>">
-        <button class="btn danger" type="submit">Hapus</button>
-      </form>
-      <button class="btn" onclick="window.print()">Cetak</button>
+      <div style="display: inline-flex; gap: 8px;">
+        <a class="btn secondary" href="lihat.php"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+        <a class="btn secondary" href="edit.php?id=<?=$id?>"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+        <form action="hapus.php" method="post" style="display:inline" onsubmit="return confirm('Hapus data ini? Tindakan tidak bisa dibatalkan.');">
+          <input type="hidden" name="id" value="<?=$id?>">
+          <button class="btn danger" type="submit"><i class="fa-solid fa-trash-can"></i> Hapus</button>
+        </form>
+      </div>
+      <button class="btn btn-pink" onclick="window.print()"><i class="fa-solid fa-print"></i> Cetak KTP</button>
     </div>
 
-    <div class="mt-2" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-      <span class="badge">Status: <?=htmlspecialchars($sp)?></span>
+    <!-- Status Tracker -->
+    <div class="note" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div>
+        <i class="fa-solid fa-signal"></i> Status Permohonan: 
+        <span class="badge <?=getStatusBadgeClass($sp)?>" style="margin-left: 6px;"><?=htmlspecialchars($sp)?></span>
+      </div>
+      
       <?php $next = ktp_status_next($sp); if($next !== $sp): ?>
-      <form action="status_permohonan.php" method="post" style="display:flex; gap:8px; align-items:center;">
+      <form action="status_permohonan.php" method="post" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <input type="hidden" name="id" value="<?=$id?>">
         <input type="hidden" name="to" value="<?=htmlspecialchars($next)?>">
         <input type="hidden" name="back" value="<?=htmlspecialchars('output_ktp.php?id='.$id)?>">
-        <input type="text" name="catatan" placeholder="Catatan (opsional)" style="min-width:220px">
-        <button class="btn" type="submit">Lanjut: <?=$next?></button>
+        <input type="text" name="catatan" placeholder="Catatan opsional..." style="padding: 0.5rem 0.75rem; font-size: 0.85rem; width: 200px;">
+        <button class="btn" style="padding: 0.55rem 1rem; font-size: 0.85rem; background: var(--success); border-color: var(--success);" type="submit">
+          <i class="fa-solid fa-circle-chevron-right"></i> Lanjut: <?=$next?>
+        </button>
       </form>
       <?php endif; ?>
     </div>
@@ -104,104 +132,131 @@ if(!is_file($fotopath)){
         }
         return '—';
       }
-// Prioritaskan RT/RW eksplisit jika tersedia di tabel formulir
-$rtRw = null;
-$rt = null; $rw = null;
-$stmt = $koneksi->prepare('SELECT rt, rw, ttd FROM formulir WHERE id=?');
-$stmt->bind_param('i',$id); $stmt->execute(); $rr = $stmt->get_result()->fetch_assoc(); $stmt->close();
-if($rr){ $rt = trim((string)($rr['rt'] ?? '')); $rw = trim((string)($rr['rw'] ?? '')); $ttd_file = trim((string)($rr['ttd'] ?? '')); }
-if($rt !== '' || $rw !== ''){
-  $rtRw = sprintf('%s/%s', $rt!==''?str_pad($rt,2,'0',STR_PAD_LEFT):'00', $rw!==''?str_pad($rw,2,'0',STR_PAD_LEFT):'00');
-}
-if(!$rtRw){ $rtRw = extractRtRw($data['alamat'] ?? ''); }
+      
+      // Prioritaskan RT/RW eksplisit jika tersedia di tabel formulir
+      $rtRw = null;
+      $rt = null; $rw = null;
+      $stmt = $koneksi->prepare('SELECT rt, rw, ttd FROM formulir WHERE id=?');
+      $stmt->bind_param('i',$id); $stmt->execute(); $rr = $stmt->get_result()->fetch_assoc(); $stmt->close();
+      if($rr){ 
+        $rt = trim((string)($rr['rt'] ?? '')); 
+        $rw = trim((string)($rr['rw'] ?? '')); 
+        $ttd_file = trim((string)($rr['ttd'] ?? '')); 
+      }
+      if($rt !== '' || $rw !== ''){
+        $rtRw = sprintf('%s/%s', $rt!==''?str_pad($rt,2,'0',STR_PAD_LEFT):'00', $rw!==''?str_pad($rw,2,'0',STR_PAD_LEFT):'00');
+      }
+      if(!$rtRw){ $rtRw = extractRtRw($data['alamat'] ?? ''); }
 
-// Tanggal pembuatan: pakai riwayat status pertama jika ada, jika tidak pakai hari ini
-$tgl_pembuatan = date('d - m - Y');
-if(!empty($history) && !empty($history[0]['created_at'])){
-  $tgl_pembuatan = date('d - m - Y', strtotime($history[0]['created_at']));
-}
+      // Tanggal pembuatan: pakai riwayat status pertama jika ada, jika tidak pakai hari ini
+      $tgl_pembuatan = date('d - m - Y');
+      if(!empty($history) && !empty($history[0]['created_at'])){
+        $tgl_pembuatan = date('d - m - Y', strtotime($history[0]['created_at']));
+      }
     ?>
 
-    <div class="ktp">
-      <span class="inner-border"></span>
-      <div class="safe">
-        <div class="title-center">
-          <div class="prov">PROVINSI <?=strtoupper(htmlspecialchars($data['provinsi'] ?? ''))?></div>
-          <div class="kota"><?=strtoupper(htmlspecialchars($data['kota'] ?? ''))?></div>
-        </div>
+    <!-- e-KTP Virtual Card Wrapper -->
+    <div style="width: 100%; overflow: auto; padding: 20px 0; display: flex; justify-content: center;">
+      <div class="ktp">
+        <span class="inner-border"></span>
+        <div class="safe">
+          <div class="title-center">
+            <div class="prov">PROVINSI <?=strtoupper(htmlspecialchars($data['provinsi'] ?? ''))?></div>
+            <div class="kota"><?=strtoupper(htmlspecialchars($data['kota'] ?? ''))?></div>
+          </div>
 
-        <div class="content-grid">
-          <div class="left">
-            <div class="nik-line">
-              <span class="label">NIK</span>
-              <span class="sep">:</span>
-              <span class="value nik-value"><?=htmlspecialchars($data['nik'])?></span>
+          <div class="content-grid">
+            <div class="left">
+              <div class="nik-line">
+                <span class="label">NIK</span>
+                <span class="sep">:</span>
+                <span class="value nik-value"><?=htmlspecialchars($data['nik'])?></span>
+              </div>
+
+              <div class="data-rows">
+                <div class="row"><span class="label">Nama</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['nama'])?></span></div>
+                <div class="row"><span class="label">Tempat/Tgl Lahir</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['tempat_lahir'])?> / <?=htmlspecialchars($tglLahir)?></span></div>
+                <div class="row"><span class="label">Jenis Kelamin</span><span class="sep">:</span><span class="value"><?=$jkText?></span></div>
+                <div class="row"><span class="label">Alamat</span><span class="sep">:</span><span class="value"><?=nl2br(htmlspecialchars($data['alamat']))?></span></div>
+                <div class="row shift"><span class="label">RT/RW</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($rtRw)?></span></div>
+                <div class="row shift"><span class="label">Kel/Desa</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['nama_kelurahan'])?></span></div>
+                <div class="row shift"><span class="label">Kecamatan</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['kecamatan'])?></span></div>
+                <div class="row"><span class="label">Agama</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['agama'])?></span></div>
+                <div class="row"><span class="label">Status Perkawinan</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['status'])?></span></div>
+                <div class="row"><span class="label">Pekerjaan</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['pekerjaan'])?></span></div>
+                <div class="row"><span class="label">Kewarganegaraan</span><span class="sep">:</span><span class="value">WNI</span></div>
+                <div class="row"><span class="label">Berlaku Hingga</span><span class="sep">:</span><span class="value">Seumur Hidup</span></div>
+              </div>
             </div>
 
-            <div class="data-rows">
-              <div class="row"><span class="label">Nama</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['nama'])?></span></div>
-              <div class="row"><span class="label">Tempat/Tgl Lahir</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['tempat_lahir'])?> / <?=htmlspecialchars($tglLahir)?></span></div>
-              <div class="row"><span class="label">Jenis Kelamin</span><span class="sep">:</span><span class="value"><?=$jkText?></span></div>
-              <div class="row"><span class="label">Alamat</span><span class="sep">:</span><span class="value"><?=nl2br(htmlspecialchars($data['alamat']))?></span></div>
-              <div class="row shift"><span class="label">RT/RW</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($rtRw)?></span></div>
-              <div class="row shift"><span class="label">Kel/Desa</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['nama_kelurahan'])?></span></div>
-              <div class="row shift"><span class="label">Kecamatan</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['kecamatan'])?></span></div>
-              <div class="row"><span class="label">Agama</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['agama'])?></span></div>
-              <div class="row"><span class="label">Status Perkawinan</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['status'])?></span></div>
-              <div class="row"><span class="label">Pekerjaan</span><span class="sep">:</span><span class="value"><?=htmlspecialchars($data['pekerjaan'])?></span></div>
-              <div class="row"><span class="label">Kewarganegaraan</span><span class="sep">:</span><span class="value">WNI</span></div>
-              <div class="row"><span class="label">Berlaku Hingga</span><span class="sep">:</span><span class="value">Seumur Hidup</span></div>
+            <div class="right">
+              <div class="foto-frame">
+                <img class="foto" src="<?=htmlspecialchars($fotopath)?>" alt="Foto">
+              </div>
+              <div class="photo-caption">JAKARTA TIMUR<br><span class="photo-date"><?=$tgl_pembuatan?></span></div>
+              <?php 
+                $ttdpath = (!empty($ttd_file) && is_file('uploads/ttd/'.$ttd_file)) ? ('uploads/ttd/'.$ttd_file) : '';
+                if($ttdpath): ?>
+                <img class="ttd-small" src="<?=htmlspecialchars($ttdpath)?>" alt="Tanda Tangan">
+              <?php endif; ?>
             </div>
           </div>
 
-          <div class="right">
-            <div class="foto-frame">
-              <img class="foto" src="<?=htmlspecialchars($fotopath)?>" alt="Foto">
+          <div class="footer">
+            <div class="city">
+              <?=strtoupper(htmlspecialchars($data['kota']))?><br>
+              <span><?=date('d - m - Y')?></span>
             </div>
-            <div class="photo-caption">JAKARTA TIMUR<br><span class="photo-date"><?=$tgl_pembuatan?></span></div>
-            <?php 
-              $ttdpath = (!empty($ttd_file) && is_file('uploads/ttd/'.$ttd_file)) ? ('uploads/ttd/'.$ttd_file) : '';
-              if($ttdpath): ?>
-              <img class="ttd-small" src="<?=htmlspecialchars($ttdpath)?>" alt="Tanda Tangan">
-            <?php endif; ?>
-          </div>
-        </div>
-
-        <div class="footer">
-          <div class="city">
-            <?=strtoupper(htmlspecialchars($data['kota']))?><br>
-            <span><?=date('d - m - Y')?></span>
-          </div>
-          <div class="sign">
-            <div class="sign-line"></div>
+            <div class="sign">
+              <div class="sign-line"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div style="margin-top:14px">
-      <?php if(!empty($data['file_kk'])): ?>
-        <p>KK: <a target="_blank" href="uploads/kk/<?=htmlspecialchars($data['file_kk'])?>"><?=htmlspecialchars($data['file_kk'])?></a></p>
-      <?php endif; ?>
-      <?php if(!empty($data['file_akte'])): ?>
-        <p>Akte: <a target="_blank" href="uploads/akte/<?=htmlspecialchars($data['file_akte'])?>"><?=htmlspecialchars($data['file_akte'])?></a></p>
-      <?php endif; ?>
+    <!-- Berkas Pendukung -->
+    <div class="mt-4" style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
+      <h3 class="section-title">Berkas Persyaratan yang Diunggah</h3>
+      <div class="row mt-2" style="display:flex; gap:12px; flex-wrap:wrap;">
+        <?php if(!empty($data['file_kk'])): ?>
+          <a class="btn secondary" target="_blank" href="uploads/kk/<?=htmlspecialchars($data['file_kk'])?>">
+            <i class="fa-solid fa-file-pdf"></i> Lihat Kartu Keluarga (KK)
+          </a>
+        <?php endif; ?>
+        <?php if(!empty($data['file_akte'])): ?>
+          <a class="btn secondary" target="_blank" href="uploads/akte/<?=htmlspecialchars($data['file_akte'])?>">
+            <i class="fa-solid fa-file-pdf"></i> Lihat Akte Kelahiran
+          </a>
+        <?php endif; ?>
+      </div>
     </div>
 
-    <div class="mt-4">
-      <h3 class="section-title">Riwayat Status</h3>
+    <!-- Riwayat Status -->
+    <div class="mt-4" style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
+      <h3 class="section-title">Riwayat Status Permohonan</h3>
       <?php if(empty($history)): ?>
-        <p class="note">Belum ada riwayat.</p>
+        <p class="note"><i class="fa-solid fa-circle-exclamation"></i> Belum ada riwayat perubahan status untuk permohonan ini.</p>
       <?php else: ?>
         <div class="table-wrap">
           <table class="table">
-            <thead><tr><th>Waktu</th><th>Status</th><th>Catatan</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Waktu Perubahan</th>
+                <th>Status</th>
+                <th>Catatan / Keterangan</th>
+              </tr>
+            </thead>
             <tbody>
             <?php foreach($history as $h): ?>
               <tr>
-                <td><?=htmlspecialchars($h['created_at'])?></td>
-                <td><span class="badge"><?=htmlspecialchars($h['status'])?></span></td>
-                <td><?=nl2br(htmlspecialchars($h['catatan'] ?? ''))?></td>
+                <td style="font-weight: 600;"><?=date('d-m-Y H:i', strtotime($h['created_at']))?></td>
+                <td>
+                  <span class="badge <?=getStatusBadgeClass($h['status'])?>">
+                    <?=htmlspecialchars($h['status'])?>
+                  </span>
+                </td>
+                <td style="color: var(--muted);"><?=nl2br(htmlspecialchars($h['catatan'] ?? '-'))?></td>
               </tr>
             <?php endforeach; ?>
             </tbody>
@@ -212,5 +267,12 @@ if(!empty($history) && !empty($history[0]['created_at'])){
 
   </div>
 </div>
+
+<footer class="site-footer">
+  <div class="inner">
+    <span><i class="fa-solid fa-building"></i> Kelurahan Munjul &mdash; Jakarta Timur</span>
+    <span>&copy; <?=date('Y')?> Sistem Pelayanan KTP</span>
+  </div>
+</footer>
 </body>
 </html>

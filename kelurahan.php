@@ -40,6 +40,7 @@ if (empty($fotoUrl)) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Profil Kelurahan Munjul</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <nav class="site-header">
@@ -56,41 +57,82 @@ if (empty($fotoUrl)) {
     </div>
   </div>
 </nav>
+
 <?php $bg = !empty($fotoUrl) ? $fotoUrl : 'assets/img/kelurahan-munjul.jpg'; ?>
-<section class="hero hero-kelurahan" style="background-image:url('<?=htmlspecialchars($bg)?>')">
+<section class="hero-kelurahan" style="background-image:url('<?=htmlspecialchars($bg)?>')">
   <div class="container">
     <div class="breadcrumbs"><a href="index.php">Beranda</a> / <span>Kelurahan Munjul</span></div>
-    <h1 class="title">Kelurahan Munjul</h1>
-    <p class="subtitle" style="color:#e5e7eb; max-width:70ch;">Informasi singkat, data wilayah, dan sejarah Kelurahan Munjul, Kecamatan Cipayung, Jakarta Timur.</p>
+    <h1 class="title">Profil Kelurahan Munjul</h1>
+    <p class="subtitle">Informasi singkat, data wilayah, sejarah, dan kontak Kelurahan Munjul, Kecamatan Cipayung, Jakarta Timur.</p>
   </div>
 </section>
 
 <div class="container">
   <div class="card">
-    <h2>Kelurahan Munjul &mdash; Cipayung, Jakarta Timur</h2>
+    <h2 class="section-title">Detail Wilayah</h2>
     <?php if($r): ?>
       <div class="profile-grid mt-3">
-        <div class="item"><b>Kelurahan</b> <?=htmlspecialchars($r['nama_kelurahan'])?></div>
-        <div class="item"><b>Kecamatan</b> <?=htmlspecialchars($r['kecamatan'])?></div>
-        <div class="item"><b>Kota</b> <?=htmlspecialchars($r['kota'])?></div>
-        <div class="item"><b>Provinsi</b> <?=htmlspecialchars($r['provinsi'])?></div>
-        <div class="item"><b>Kode Pos</b> <?=htmlspecialchars($r['kode_pos'])?></div>
-        <div class="item"><b>Luas Wilayah</b> <?=htmlspecialchars($r['luas_wilayah'])?> km&sup2;</div>
-        <div class="item"><b>RW</b> <?=htmlspecialchars($r['jumlah_rw'])?></div>
-        <div class="item"><b>RT</b> <?=htmlspecialchars($r['jumlah_rt'])?></div>
-        <div class="item"><b>Kepala Kelurahan</b> <?=htmlspecialchars($r['kepala_kelurahan'] ?: '-')?></div>
+        <div class="profile-item">
+          <b>Nama Kelurahan</b>
+          <span><?=htmlspecialchars($r['nama_kelurahan'])?></span>
+        </div>
+        <div class="profile-item">
+          <b>Kecamatan</b>
+          <span><?=htmlspecialchars($r['kecamatan'])?></span>
+        </div>
+        <div class="profile-item">
+          <b>Kota Administrasi</b>
+          <span><?=htmlspecialchars($r['kota'])?></span>
+        </div>
+        <div class="profile-item">
+          <b>Provinsi</b>
+          <span><?=htmlspecialchars($r['provinsi'])?></span>
+        </div>
+        <div class="profile-item">
+          <b>Kode Pos</b>
+          <span><?=htmlspecialchars($r['kode_pos'])?></span>
+        </div>
+        <div class="profile-item">
+          <b>Luas Wilayah</b>
+          <span><?=htmlspecialchars($r['luas_wilayah'])?> km&sup2;</span>
+        </div>
+        <div class="profile-item">
+          <b>Jumlah RW</b>
+          <span><?=htmlspecialchars($r['jumlah_rw'])?> RW</span>
+        </div>
+        <div class="profile-item">
+          <b>Jumlah RT</b>
+          <span><?=htmlspecialchars($r['jumlah_rt'])?> RT</span>
+        </div>
+        <div class="profile-item" style="grid-column: span 2;">
+          <b>Kepala Kelurahan (Lurah)</b>
+          <span><i class="fa-solid fa-user-tie"></i> <?=htmlspecialchars($r['kepala_kelurahan'] ?: '-')?></span>
+        </div>
       </div>
-      <div class="section">
+      
+      <div class="mt-4" style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
         <h3 class="section-title">Sejarah</h3>
-        <p><?=nl2br(htmlspecialchars($r['sejarah']))?></p>
+        <p style="text-align: justify; line-height: 1.8; color: var(--muted); margin-bottom: 1.5rem;"><?=nl2br(htmlspecialchars($r['sejarah']))?></p>
       </div>
+
       <?php if(!empty($r['lokasi'])): ?>
-        <p class="section"><b>Website:</b> <a target="_blank" href="<?=htmlspecialchars($r['lokasi'])?>"><?=htmlspecialchars($r['lokasi'])?></a></p>
+        <div class="note mt-3">
+          <i class="fa-solid fa-globe"></i> <b>Website Resmi Kelurahan:</b> <a target="_blank" href="<?=htmlspecialchars($r['lokasi'])?>"><?=htmlspecialchars($r['lokasi'])?></a>
+        </div>
       <?php endif; ?>
     <?php else: ?>
-      <p class="note">Data kelurahan belum tersedia.</p>
+      <div class="alert danger">
+        <i class="fa-solid fa-triangle-exclamation"></i> Data Kelurahan belum tersedia di database.
+      </div>
     <?php endif; ?>
   </div>
 </div>
+
+<footer class="site-footer">
+  <div class="inner">
+    <span><i class="fa-solid fa-building"></i> Kelurahan Munjul &mdash; Jakarta Timur</span>
+    <span>&copy; <?=date('Y')?> Sistem Pelayanan KTP</span>
+  </div>
+</footer>
 </body>
 </html>
