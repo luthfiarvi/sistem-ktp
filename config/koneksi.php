@@ -5,6 +5,13 @@ $user = "if0_42322302";              // Isi pake MySQL Username
 $pass = "IGUWuVHgeuqQxI";            // Isi pake Password akun hosting
 $db   = "if0_42322302_db_ktp";       // Isi pake Nama Database lengkap yang kebuat
 
+// Map ke variabel uppercase yang dipanggil oleh fungsi open_ktp_connection di bawah
+$DB_HOST = $host;
+$DB_USER = $user;
+$DB_PASS = $pass;
+$DB_NAME = $db;
+$DB_FALLBACK_NAME = $db . "_fallback";
+
 function db_name_sql($name){
     if(!preg_match('/^[A-Za-z0-9_]+$/', $name)){
         die("Nama database tidak valid.");
