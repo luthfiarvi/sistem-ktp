@@ -4,7 +4,39 @@ require_once __DIR__.'/config/status.php';
 $id = intval($_GET['id'] ?? 0);
 if($id<=0){ die("Parameter tidak valid."); }
 
-$stmt = $koneksi->prepare("SELECT * FROM view_ktp_lengkap WHERE id_formulir = ?");
+$stmt = $koneksi->prepare("
+    SELECT
+        f.id AS id_formulir,
+        f.nik AS nik,
+        f.nama AS nama,
+        f.tempat_lahir AS tempat_lahir,
+        f.tanggal_lahir AS tanggal_lahir,
+        f.jenis_kelamin AS jenis_kelamin,
+        f.alamat AS alamat,
+        f.rt AS rt,
+        f.rw AS rw,
+        f.ttd AS ttd,
+        f.agama AS agama,
+        f.pekerjaan AS pekerjaan,
+        f.status AS status,
+        f.foto AS foto,
+        k.file_kk AS file_kk,
+        a.file_akte AS file_akte,
+        kel.nama_kelurahan AS nama_kelurahan,
+        kel.kecamatan AS kecamatan,
+        kel.kota AS kota,
+        kel.provinsi AS provinsi,
+        kel.kode_pos AS kode_pos,
+        kel.kepala_kelurahan AS kepala_kelurahan,
+        kel.sejarah AS sejarah,
+        kel.lokasi AS lokasi,
+        f.status_permohonan AS status_permohonan
+    FROM formulir f
+    LEFT JOIN kk k ON f.id = k.id_formulir
+    LEFT JOIN akte a ON f.id = a.id_formulir
+    LEFT JOIN kelurahan kel ON 1 = 1
+    WHERE f.id = ?
+");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $data = $stmt->get_result()->fetch_assoc();
